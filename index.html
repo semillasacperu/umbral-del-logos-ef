@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Umbral del Logos · Simulacro EF 2026-2 — Filosofía (HUM-102)</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+    <header>
+        <div class="header-inner">
+            <div>
+                <h1>Umbral del Logos · Simulacro EF 2026-2 (Filosofía HUM-102 / 810325)</h1>
+                <div class="sub">Universidad Científica del Sur · Rúbrica EF 2026-2 (20 pts) · Módulos 1 al 4 (Semanas
+                    1–16)</div>
+            </div>
+            <div class="header-controls">
+                <button id="toggleTimerBtn">Cronómetro: Desactivado</button>
+                <button class="btn-primary" id="newSimBtn">Nuevo Simulacro EF</button>
+                <button class="btn-ok" id="exportPdfBtn">Exportar PDF</button>
+            </div>
+        </div>
+
+        <div class="timer-bar" id="timerBar">
+            <div>
+                <span>Modo cronómetro opcional:</span>
+                <select id="timerMinutesSelect">
+                    <option value="15">15 min</option>
+                    <option value="25" selected>25 min</option>
+                    <option value="40">40 min</option>
+                    <option value="60">60 min</option>
+                </select>
+                <span class="clock" id="clockDisplay" style="margin-left:0.5rem;">25:00</span>
+            </div>
+            <div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+                <button id="pauseTimerBtn">Pausar</button>
+                <button id="resetTimerBtn">Reiniciar</button>
+                <button id="disableTimerBtn">Desactivar</button>
+            </div>
+            <div class="sub" id="timerNotice">Cronómetro activo: entrena tu ritmo sin bloquear el aprendizaje.</div>
+        </div>
+    </header>
+
+    <main>
+        <section>
+            <div class="mode-tabs">
+                <button class="mode-tab active" id="tabSim">Simulacro EF (8 Preguntas)</button>
+                <button class="mode-tab" id="tabResources">Lecturas y Rúbrica EF</button>
+                <button class="mode-tab" id="tabPdfPreview">Vista Previa y PDF</button>
+                <button class="mode-tab" id="tabValidation">Validación y Autor <span class="tab-counter"
+                        id="valTabCount">0</span></button>
+            </div>
+
+            <div class="card" id="simPanel">
+                <div class="q-nav" id="qNav"></div>
+                <div id="questionArea"></div>
+            </div>
+
+            <div class="card" id="resourcesPanel" style="display:none;">
+                <h3>Biblioteca del Sílabo y Referencia de Rúbrica EF 2026-2</h3>
+                <p class="sub">Recursos del curso y criterios de logro para fortalecer tu análisis y tus evidencias
+                    (minidocumental, podcast e Informe de Filosofía Aplicada).</p>
+                <div id="recommendedSection"></div>
+                <h4>Síntesis de Niveles — Rúbrica Evaluación Final 2026-2 (20 pts)</h4>
+                <div class="sub-box">
+                    <strong>Criterio 1 (4 pts):</strong> Logro destacado (4) / Logrado (3) / No logrado (2) —
+                    Integración precisa de conceptos filosóficos al analizar casos.<br>
+                    <strong>Criterio 2 (4 pts):</strong> Logro destacado (4) / Logrado (3) / No logrado (2) —
+                    Reconocimiento de corrientes, enfoques y autores en relación con los casos.<br>
+                    <strong>Criterio 3 (6 pts):</strong> Logro destacado (6) / Logrado (3) / No logrado (2) —
+                    Diferenciación precisa de problemáticas filosóficas contemporáneas.<br>
+                    <strong>Criterio 4 (6 pts):</strong> Logro destacado (6) / Logrado (4) / No logrado (2) — Relación
+                    pertinente entre enfoques filosóficos y situaciones reales.
+                </div>
+                <h4>Catálogo general por módulos del sílabo</h4>
+                <div id="catalogList"></div>
+            </div>
+
+            <div class="card" id="pdfPanel" style="display:none;">
+                <h3>¿Qué se exporta en el PDF? (Vista Previa del Reporte)</h3>
+                <p class="sub">Incluye datos del simulacro, puntaje rumbo al 20, comentarios tipo rúbrica por criterio,
+                    detalle P1–P8, lecturas recomendadas y tus notas para el curso.</p>
+                <label class="sub" style="display:block; margin-top:0.5rem;">Notas adicionales para tu minidocumental,
+                    podcast o Informe de Filosofía Aplicada:</label>
+                <textarea id="courseNotesInput"
+                    placeholder="Ej. Relación filosofía-realidad para el podcast: cómo la ecosofía andina y el Antropoceno reinterpretan el conflicto por el agua..."></textarea>
+                <div class="header-controls no-print" style="margin-top:0.7rem;">
+                    <button class="btn-ok" id="downloadPdfFromPanelBtn">Guardar / Imprimir en PDF</button>
+                    <button type="button" id="openValidationFromPdfBtn">Ir a Validación y Autor</button>
+                </div>
+                <div class="status-msg" id="exportStatus"></div>
+                <div class="preview-box" id="pdfPreviewBox"></div>
+            </div>
+
+            <div class="card" id="validationPanel" style="display:none;">
+                <h3>Validación Estudiantil Rápida (Opciones Predeterminadas)</h3>
+                <p class="sub">Responde en segundos seleccionando las opciones predeterminadas. La pregunta final
+                    abierta es totalmente opcional (se guarda en este navegador sin alterar tu simulacro).</p>
+
+                <form id="studentValidationForm" class="val-form">
+                    <div class="val-ratings-grid">
+                        <label class="val-field">
+                            <span>1. Utilidad para preparar la Evaluación Final:</span>
+                            <select id="valUsefulness">
+                                <option value="Muy útil para la EF">Muy útil para la EF</option>
+                                <option value="Útil para repasar">Útil para repasar</option>
+                                <option value="Medianamente útil">Medianamente útil</option>
+                                <option value="Requiere ajustes">Requiere ajustes</option>
+                            </select>
+                        </label>
+
+                        <label class="val-field">
+                            <span>2. Nivel de reto y claridad de los casos:</span>
+                            <select id="valClarity">
+                                <option value="Retador y claro">Retador y claro</option>
+                                <option value="Adecuado al nivel del curso">Adecuado al nivel del curso</option>
+                                <option value="Algo extenso en lectura">Algo extenso en lectura</option>
+                                <option value="Muy breve o directo">Muy breve o directo</option>
+                            </select>
+                        </label>
+
+                        <label class="val-field">
+                            <span>3. Aspecto que más te ayuda a estudiar:</span>
+                            <select id="valBestFeature">
+                                <option value="Casos tipo evaluación y rúbrica">Casos tipo evaluación y rúbrica</option>
+                                <option value="Comentarios y micro-retos">Comentarios y micro-retos</option>
+                                <option value="Dashboard de dominios y módulos">Dashboard de dominios y módulos</option>
+                                <option value="Avatar SVG y medallas filosóficas">Avatar SVG y medallas filosóficas
+                                </option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="val-ratings-grid-2">
+                        <label class="val-field">
+                            <span>4. Prioridad de mejora o escalamiento sugerida:</span>
+                            <select id="valImprovement">
+                                <option value="Ampliar más casos por módulo">Ampliar más casos por módulo</option>
+                                <option value="Afinar guía del caso abierto (P8)">Afinar guía del caso abierto (P8)
+                                </option>
+                                <option value="Optimizar tiempo y ritmo de sesión">Optimizar tiempo y ritmo de sesión
+                                </option>
+                                <option value="Mantener estructura actual y escalar">Mantener estructura actual y
+                                    escalar</option>
+                            </select>
+                        </label>
+
+                        <label class="val-field">
+                            <span>5. Perfil / contexto (opcional):</span>
+                            <select id="valContext">
+                                <option value="Estudiante HUM-102 · EF 2026-2">Estudiante HUM-102 · EF 2026-2</option>
+                                <option value="Prueba piloto / revisión docente">Prueba piloto / revisión docente
+                                </option>
+                                <option value="Repaso autónomo rumbo al 20">Repaso autónomo rumbo al 20</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <label class="val-field">
+                        <span>Pregunta final abierta (opcional — no es obligatoria): ¿Qué comentario o sugerencia
+                            adicional deseas dejar?</span>
+                        <textarea id="valOptionalComment" class="val-optional-textarea"
+                            placeholder="Opcional: escribe aquí solo si deseas añadir una observación puntual..."></textarea>
+                    </label>
+
+                    <div class="header-controls">
+                        <button type="submit" class="btn-primary">Registrar validación</button>
+                        <button type="button" id="valNewRespondentBtn">Nueva respuesta (limpiar)</button>
+                        <button type="button" id="valClearBtn">Borrar registros locales</button>
+                    </div>
+                </form>
+
+                <div class="status-msg" id="valStatusMsg"></div>
+
+                <div class="author-dashboard-card">
+                    <h4>Dashboard del Autor · Métricas y Escalamiento del Aplicativo</h4>
+                    <div id="authorKpis" class="author-kpi-grid"></div>
+                    <div id="authorBreakdown" class="author-breakdown-grid"></div>
+
+                    <h4>Comentarios opcionales registrados</h4>
+                    <div id="valHistoryList" class="val-history-list"></div>
+
+                    <h4>Reporte consolidado para el autor / escalamiento</h4>
+                    <textarea id="valSummaryBox" class="val-summary-box" readonly></textarea>
+                    <div class="header-controls" style="margin-top:0.6rem;">
+                        <button type="button" class="btn-ok" id="valCopySummaryBtn">Copiar reporte del autor</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside>
+            <div class="card">
+                <h3>Avatar Filosófico, Medallas y Racha</h3>
+                <div class="avatar-stage">
+                    <div class="avatar-portrait" id="avatarPortrait"></div>
+                    <div class="avatar-controls">
+                        <label class="sub" for="genderSelect">Género / Expresión:</label>
+                        <select id="genderSelect">
+                            <option value="femenino">Femenino</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="neutro">No binario / Neutro</option>
+                        </select>
+
+                        <label class="sub" for="avatarSelect" style="margin-top:0.45rem;">Rol filosófico del
+                            curso:</label>
+                        <select id="avatarSelect">
+                            <option value="caverna">Explorador/a de la Caverna (Módulo 1)</option>
+                            <option value="agora">Analista del Ágora Ética (Módulo 2)</option>
+                            <option value="yanantin">Tejedor/a del Yanantin y lo Glocal (Módulo 3)</option>
+                            <option value="antropoceno">Guardián/a del Antropoceno (Módulo 4)</option>
+                        </select>
+                        <div class="rank-pill" id="avatarRank">Rango: Aprendiz del Logos</div>
+                    </div>
+                </div>
+
+                <div class="stats-strip">
+                    <span>XP: <strong id="xpVal">0</strong></span>
+                    <span>Racha: <strong id="streakVal">0</strong></span>
+                    <span>Simulacro #<strong id="simNumVal">1</strong></span>
+                </div>
+
+                <div class="val-aside-bar">
+                    <span>Validaciones guardadas: <strong id="valAsideCount">0</strong></span>
+                    <button type="button" class="btn-mini" id="openValidationFromAsideBtn">Abrir Validación y
+                        Autor</button>
+                </div>
+
+                <h4 style="margin-top:0.75rem;">Medallas Filosóficas</h4>
+                <div class="medals-grid" id="medalsGrid"></div>
+                <div class="medal-detail" id="medalDetail">Haz clic o pasa el cursor sobre una medalla para ver su
+                    significado filosófico y vínculo con el sílabo.</div>
+            </div>
+
+            <div class="card">
+                <h3>Dashboard de Dominios · Rúbrica EF (20 pts)</h3>
+                <div class="score-box">
+                    <div>
+                        <div class="sub">Puntaje proyectado</div>
+                        <div class="score-val" id="totalScore">0.0 <span style="font-size:0.9rem; color:var(--muted);">/
+                                20.0</span></div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="sub">Brecha al 20</div>
+                        <div id="gapVal" style="font-weight:700; color:var(--warn);">20.0 pts</div>
+                    </div>
+                </div>
+
+                <h4>Dominio por Criterios (Rúbrica EF 2026-2)</h4>
+                <div class="domains-grid" id="criteriaDomains"></div>
+                <div class="domain-detail" id="domainDetail">Pasa el cursor o haz clic sobre un dominio para ver cuánto
+                    falta para el logro destacado y cómo aporta a los 20.0 pts.</div>
+
+                <h4>Cobertura por Módulos del Sílabo</h4>
+                <div class="modules-grid" id="modulesBars"></div>
+            </div>
+
+            <div class="card">
+                <h3>Comentarios de Rúbrica y Pistas Desbloqueadas</h3>
+                <ul class="notes" id="notesBox">
+                    <li>Responde ítems para recibir comentarios tipo rúbrica, micro-retos y pistas para el curso.</li>
+                </ul>
+            </div>
+        </aside>
+    </main>
+
+    <script src="data/syllabusResources.js"></script>
+    <script src="data/questionBank.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/graphics.js"></script>
+    <script src="js/evaluator.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/studentValidation.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
